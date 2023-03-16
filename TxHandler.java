@@ -116,28 +116,35 @@ public class TxHandler {
      */
     public Transaction[] handleTxs(Transaction[] possibleTxs) {
         // IMPLEMENT THIS
+        // TODO: check if unordered transactions depend on each other
+        // create an array list to store the accepted transactions
         ArrayList<Transaction> acceptedTxs = new ArrayList<Transaction>();
         for(int i=0; i<possibleTxs.length; i++){
             if(isValidTx(possibleTxs[i])){
                 acceptedTxs.add(possibleTxs[i]);
                 // remove the inputs from the utxo pool
                 for(int j=0; j<possibleTxs[i].numInputs(); j++){
+                    // obtain the input of the transaction currently checked and store in utxo object to remove
                     Transaction.Input checkedInput = possibleTxs[i].getInput(j);
                     UTXO checkedUtxo = new UTXO(checkedInput.prevTxHash, checkedInput.outputIndex);
                     utxoPool.removeUTXO(checkedUtxo);
                 }
                 // add the outputs to the utxo pool
                 for(int j=0; j<possibleTxs[i].numOutputs(); j++){
+                    // obtain the output of the transaction currently checked and store in utxo object to add
                     Transaction.Output checkedOutput = possibleTxs[i].getOutput(j);
                     UTXO checkedUtxo = new UTXO(possibleTxs[i].getHash(), j);
                     utxoPool.addUTXO(checkedUtxo, checkedOutput);
                 }
             }
         }
+
+        // convert from array list to array to return
         Transaction[] acceptedTxsArray = new Transaction[acceptedTxs.size()];
         for(int i=0; i<acceptedTxs.size(); i++){
             acceptedTxsArray[i]=acceptedTxs.get(i);
         }
+        // return the accepted transactions after all operations are done
         return acceptedTxsArray;
     }
 
